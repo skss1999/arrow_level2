@@ -1,0 +1,40 @@
+html,
+body {
+    margin: 0;
+    padding: 0;
+}
+
+canvas {
+    display: block;
+}
+
+body .container #noticeWin {
+    /* background-color: grey; */
+    /* background-color: red; */
+    position: relative;
+    visibility: hidden;
+    z-index: 999;
+}
+
+body #camArea #label-container {
+    top: 90px;
+    right: 30px;
+    /* background-color: red; */
+    position: absolute;
+    visibility: hidden;
+}
+
+body #camArea #label-container-b {
+    top: 10px;
+    right: 30px;
+    /* background-color: red; */
+    position: absolute;
+    visibility: hidden;
+    font-size: 50px;
+    color: coral;
+}
+
+body #camArea {
+    position: relative;
+    z-index: 500;
+}

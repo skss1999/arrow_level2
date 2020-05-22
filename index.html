@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.10.2/p5.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.10.2/addons/p5.sound.min.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.3.1/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/pose@0.8/dist/teachablemachine-pose.min.js"></script>
+    <meta charset="utf-8" />
+
+</head>
+
+<body>
+    <div id="camArea">
+        <div><canvas id="canvas"></canvas></div>
+        <div id="label-container-b"></div>
+        <div id="label-container"></div>
+    </div>
+
+    <div class="container">
+        <div class="row my-sm-5" id="noticeWin">
+            <div class="col">
+                <div class="media bg-success border border-success">
+                    <i class="fa align-self-center m-4" style="font-size: 3rem;" aria-hidden="true"></i>
+                    <div class="media-body bg-light p-4">
+                        <div class="row">
+                            <div class="col">
+                                <h5 class="mt-0">
+                                    <a id="finalCorrect"></a>
+                                </h5>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                </br>
+                <div class="media bg-danger border border-danger">
+                    <i class="fa align-self-center m-4" style="font-size: 3rem;" aria-hidden="true"></i>
+                    <div class="media-body bg-light p-4">
+                        <div class="row">
+                            <div class="col">
+                                <h5 class="mt-0">
+                                    <a id="finalWrong"></a>
+                                </h5>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <nav class="navbar fixed-bottom navbar-expand-sm navbar-dark bg-dark">
+        <a class="navbar-brand">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 32 32" aria-hidden="true" onclick="buttonClicked()">
+                <path data-name="layer1" d="M17.504 26.025l.001-14.287 6.366 6.367L26 15.979 15.997 5.975 6 15.971 8.129 18.1l6.366-6.368v14.291z" fill="#fc0824" />
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 32 32" aria-hidden="true" onclick="buttonClicked()">
+                <path data-name="layer1" d="M14.496 5.975l-.001 14.287-6.366-6.367L6 16.021l10.003 10.004L26 16.029 23.871 13.9l-6.366 6.368V5.977z" fill="#1212fc" />
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 32 32" aria-hidden="true" onclick="buttonClicked()">
+                <path data-name="layer1" d="M26.025 14.496l-14.286-.001 6.366-6.366L15.979 6 5.975 16.003 15.971 26l2.129-2.129-6.367-6.366h14.29z" fill="#f5e614" />
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 32 32" aria-hidden="true" onclick="buttonClicked()">
+                <path data-name="layer1" d="M5.975 17.504l14.287.001-6.367 6.366L16.021 26l10.004-10.003L16.029 6l-2.128 2.129 6.367 6.366H5.977z" fill="#3df505" />
+            </svg> Arrow Game
+        </a>
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a class="nav-link" onclick="newGame()">New Game</a>
+                </li>
+            </ul>
+        </div>
+        <a class="navbar-brand d-flex align-items-center">
+            Cam:&nbsp;
+            <input type="checkbox" data-toggle="toggle" data-on="On" data-off="Off" data-size="sm" id="toggleCam" onchange="camOnOff()">
+        </a>
+        <a class="navbar-brand d-flex align-items-center">
+            Blink:&nbsp;
+            <input type="checkbox" checked data-toggle="toggle" data-on="On" data-off="Off" data-size="sm" id="toggleID" onchange="toggleButton()">
+        </a>
+        <div class="d-flex justify-content-between align-items-center">
+            <a class="bg-white">
+                <a class="navbar-brand d-flex align-items-center bg-success px-2">
+                    <svg width="20" height="20" fill="none" viewBox="0 0 20 20" aria-hidden="true">
+                <path fill="#000" d="M7.629,14.566c0.125,0.125,0.291,0.188,0.456,0.188c0.164,0,0.329-0.062,0.456-0.188l8.219-8.221c0.252-0.252,0.252-0.659,0-0.911c-0.252-0.252-0.659-0.252-0.911,0l-7.764,7.763L4.152,9.267c-0.252-0.251-0.66-0.251-0.911,0c-0.252,0.252-0.252,0.66,0,0.911L7.629,14.566z"></path>
+                </svg>
+                    <strong id="correctMarker">0</strong>
+                </a>
+                <a class="navbar-brand d-flex align-items-center bg-danger px-2">
+                    <svg width="20" height="20" fill="none" viewBox="0 0 20 20" aria-hidden="true">
+                <path fill="#000" d="M15.898,4.045c-0.271-0.272-0.713-0.272-0.986,0l-4.71,4.711L5.493,4.045c-0.272-0.272-0.714-0.272-0.986,0s-0.272,0.714,0,0.986l4.709,4.711l-4.71,4.711c-0.272,0.271-0.272,0.713,0,0.986c0.136,0.136,0.314,0.203,0.492,0.203c0.179,0,0.357-0.067,0.493-0.203l4.711-4.711l4.71,4.711c0.137,0.136,0.314,0.203,0.494,0.203c0.178,0,0.355-0.067,0.492-0.203c0.273-0.273,0.273-0.715,0-0.986l-4.711-4.711l4.711-4.711C16.172,4.759,16.172,4.317,15.898,4.045z"></path>
+                </svg>
+                    <strong id="wrongMarker">0</strong>
+                </a>
+            </a>
+            <a class="navbar-brand d-flex align-items-center">
+                <strong id="timerHeader">0</strong>
+            </a>
+        </div>
+    </nav>
+    <script src="sketch.js"></script>
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/css/bootstrap4-toggle.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/js/bootstrap4-toggle.min.js"></script>
+</body>
+
+</html>
